@@ -48,25 +48,14 @@
  <script>
     async function cargarDatos() {
         try {
-            // Usamos un proxy público (corsproxy.io) para saltar la restricción
-            const proxyUrl = 'https://corsproxy.io/?';
-            const targetUrl = 'https://api.openf1.org/v1/drivers?session_key=9158';
-            
-            const response = await fetch(proxyUrl + encodeURIComponent(targetUrl));
-            const pilotos = await response.json();
+            // Probemos con una URL distinta para verificar la conexión
+            const response = await fetch('https://api.github.com/zen');
+            const mensaje = await response.text();
             
             const tabla = document.getElementById('tabla-tiempos');
-            tabla.innerHTML = '<h3>Pilotos en Pista</h3>';
-            
-            pilotos.forEach(p => {
-                tabla.innerHTML += `
-                    <div class="driver-row">
-                        <strong>${p.driver_number}</strong> - ${p.full_name} (${p.team_name})
-                    </div>`;
-            });
+            tabla.innerHTML = '<h3>Conexión Exitosa:</h3><p>' + mensaje + '</p>';
         } catch (error) {
-            document.getElementById('tabla-tiempos').innerHTML = 'Error al cargar datos (Proxy necesario).';
-            console.error(error);
+            document.getElementById('tabla-tiempos').innerHTML = 'Error crítico: ' + error.message;
         }
     }
     cargarDatos();
