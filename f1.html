@@ -30,13 +30,13 @@
 
     <main class="dashboard-container">
         <section class="timing-table" id="tabla-tiempos">
-            <h3>Cargando pilotos reales...</h3>
+            <h3>Cargando datos de pista...</h3>
         </section>
 
         <section class="side-panel">
             <div class="panel">
                 <h3>Race Control</h3>
-                <p style="font-size: 0.8rem;">Esperando mensajes...</p>
+                <p style="font-size: 0.8rem;">Esperando mensajes de la FIA...</p>
             </div>
             <div class="panel">
                 <h3>Team Radio</h3>
@@ -45,32 +45,28 @@
         </section>
     </main>
 
- <script>
-    async function cargarDatos() {
-        try {
-            // Usamos un proxy público (corsproxy.io) para saltar la restricción
-            const proxyUrl = 'https://corsproxy.io/?';
-            const targetUrl = '"https://api.openf1.org/v1/car_data?driver_number=55&session_key=9159&speed>=315"';
-            
-            const response = await fetch(proxyUrl + encodeURIComponent(targetUrl));
-            const pilotos = await response.json();
-            
-            const tabla = document.getElementById('tabla-tiempos');
-            tabla.innerHTML = '<h3>Pilotos en Pista</h3>';
-            
-            pilotos.forEach(p => {
-                tabla.innerHTML += `
-                    <div class="driver-row">
-                        <strong>${p.driver_number}</strong> - ${p.full_name} (${p.team_name})
-                    </div>`;
-            });
-        } catch (error) {
-            document.getElementById('tabla-tiempos').innerHTML = 'Error al cargar datos (Proxy necesario).';
-            console.error(error);
+    <script>
+        async function cargarDatos() {
+            try {
+                // Ahora llamamos a nuestra propia función en Vercel
+                const response = await fetch('/api/f1');
+                const pilotos = await response.json();
+                
+                const tabla = document.getElementById('tabla-tiempos');
+                tabla.innerHTML = '<h3>Pilotos en Pista</h3>';
+                
+                pilotos.forEach(p => {
+                    tabla.innerHTML += `
+                        <div class="driver-row">
+                            <strong>${p.driver_number}</strong> - ${p.full_name} (${p.team_name})
+                        </div>`;
+                });
+            } catch (error) {
+                document.getElementById('tabla-tiempos').innerHTML = 'Error al cargar datos desde el servidor.';
+                console.error(error);
+            }
         }
-    }
-    cargarDatos();
-</script>
-
+        cargarDatos();
+    </script>
 </body>
 </html>
