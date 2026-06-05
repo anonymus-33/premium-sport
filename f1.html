@@ -48,10 +48,11 @@
     <script>
         async function cargarDatos() {
             try {
-                // Ahora llamamos a nuestra propia función en Vercel
+                // LLAMADA INTERNA AL SERVIDOR DE VERCEL (No proxy externo)
                 const response = await fetch('/api/f1');
-                const pilotos = await response.json();
+                if (!response.ok) throw new Error('Error al conectar');
                 
+                const pilotos = await response.json();
                 const tabla = document.getElementById('tabla-tiempos');
                 tabla.innerHTML = '<h3>Pilotos en Pista</h3>';
                 
@@ -62,7 +63,7 @@
                         </div>`;
                 });
             } catch (error) {
-                document.getElementById('tabla-tiempos').innerHTML = 'Error al cargar datos desde el servidor.';
+                document.getElementById('tabla-tiempos').innerHTML = 'Error en el servidor.';
                 console.error(error);
             }
         }
