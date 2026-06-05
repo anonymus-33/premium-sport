@@ -48,5 +48,21 @@
         </section>
     </main>
 
+<script>
+    async function obtenerPilotos() {
+        const respuesta = await fetch('https://api.openf1.org/v1/drivers?session_key=9158'); // ID de sesión de ejemplo
+        const pilotos = await respuesta.json();
+        
+        const tabla = document.querySelector('.timing-table');
+        tabla.innerHTML = '<h3>Lista de Pilotos (Test)</h3>';
+        
+        pilotos.forEach(p => {
+            tabla.innerHTML += `<p>${p.driver_number} - ${p.full_name}</p>`;
+        });
+    }
+    
+    obtenerPilotos();
+</script>
+
 </body>
 </html>
