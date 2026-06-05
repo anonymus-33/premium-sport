@@ -47,37 +47,41 @@
         </section>
     </main>
 
-    <script>
+<script>
         async function cargarDatos() {
             try {
-                // Proxy para evitar el error CORS y obtener datos reales
+                // Usamos un proxy diferente y más estable
                 const url = 'https://api.allorigins.win/get?url=' + encodeURIComponent('https://api.openf1.org/v1/drivers?session_key=9158');
                 const response = await fetch(url);
                 const data = await response.json();
+                
+                // Convertimos el contenido string a objeto JSON
                 const pilotos = JSON.parse(data.contents);
+                
+                // Comprobamos si realmente es un array antes de hacer el forEach
+                if (!Array.isArray(pilotos)) {
+                    throw new Error("La API no devolvió una lista de pilotos. Respuesta: " + JSON.stringify(pilotos));
+                }
                 
                 const contenedor = document.getElementById('tabla-tiempos');
                 let html = `
                     <table class="table-data">
-                        <thead>
-                            <tr><th>POS</th><th>DRIVER</th><th>TEAM</th><th>STATUS</th></tr>
-                        </thead>
+                        <thead><tr><th>POS</th><th>DRIVER</th><th>TEAM</th></tr></thead>
                         <tbody>`;
                 
                 pilotos.forEach((p, index) => {
-                    html += `
-                        <tr>
-                            <td>${index + 1}</td>
-                            <td><strong>${p.driver_number}</strong> ${p.full_name}</td>
-                            <td>${p.team_name}</td>
-                            <td style="color: #00A8FF;">TRACK</td>
-                        </tr>`;
+                    html += `<tr>
+                        <td>${index + 1}</td>
+                        <td><strong>${p.driver_number}</strong> ${p.full_name}</td>
+                        <td>${p.team_name}</td>
+                    </tr>`;
                 });
                 
                 html += `</tbody></table>`;
                 contenedor.innerHTML = html;
             } catch (error) {
-                document.getElementById('tabla-tiempos').innerHTML = 'Error al cargar los datos: ' + error.message;
+                console.error(error);
+                document.getElementById('tabla-tiempos').innerHTML = 'Error: ' + error.message;
             }
         }
         cargarDatos();
