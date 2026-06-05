@@ -12,9 +12,11 @@
         
         .dashboard-container { display: grid; grid-template-columns: 1fr 350px; gap: 10px; padding: 10px; flex: 1; overflow: hidden; }
 
-        .timing-table { background: #111; border-radius: 5px; padding: 20px; overflow-y: auto; }
-        .timing-table h3 { color: #00A8FF; margin-bottom: 15px; }
-        .driver-row { padding: 8px; border-bottom: 1px solid #222; font-size: 0.9rem; }
+        /* Estilos profesionales de la tabla */
+        .timing-table { background: #0b0e14; border-radius: 5px; padding: 20px; overflow-y: auto; }
+        .table-data { width: 100%; border-collapse: collapse; color: #fff; }
+        .table-data th { text-align: left; padding: 12px; color: #888; font-size: 0.75rem; text-transform: uppercase; border-bottom: 2px solid #222; }
+        .table-data td { padding: 12px; border-bottom: 1px solid #222; font-size: 0.9rem; }
         
         .side-panel { display: flex; flex-direction: column; gap: 10px; }
         .panel { background: #111; border-radius: 5px; padding: 15px; flex: 1; border-top: 4px solid #00A8FF; }
@@ -36,7 +38,7 @@
         <section class="side-panel">
             <div class="panel">
                 <h3>Race Control</h3>
-                <p style="font-size: 0.8rem;">Esperando mensajes de la FIA...</p>
+                <p style="font-size: 0.8rem;">Esperando mensajes...</p>
             </div>
             <div class="panel">
                 <h3>Team Radio</h3>
@@ -45,32 +47,40 @@
         </section>
     </main>
 
- <script>
-    async function cargarDatos() {
-        try {
-            // Usamos un proxy que permite el acceso a la API de F1
-            const url = 'https://api.allorigins.win/get?url=' + encodeURIComponent('https://api.openf1.org/v1/drivers?session_key=9158');
-            const response = await fetch(url);
-            const data = await response.json();
-            
-            // Los datos vienen dentro de "contents"
-            const pilotos = JSON.parse(data.contents);
-            
-            const tabla = document.getElementById('tabla-tiempos');
-            tabla.innerHTML = '<h3>Pilotos en Pista</h3>';
-            
-            pilotos.forEach(p => {
-                tabla.innerHTML += `
-                    <div class="driver-row">
-                        <strong>${p.driver_number}</strong> - ${p.full_name} (${p.team_name})
-                    </div>`;
-            });
-        } catch (error) {
-            document.getElementById('tabla-tiempos').innerHTML = 'Error de conexión: ' + error.message;
+    <script>
+        async function cargarDatos() {
+            try {
+                // Proxy para evitar el error CORS y obtener datos reales
+                const url = 'https://api.allorigins.win/get?url=' + encodeURIComponent('https://api.openf1.org/v1/drivers?session_key=9158');
+                const response = await fetch(url);
+                const data = await response.json();
+                const pilotos = JSON.parse(data.contents);
+                
+                const contenedor = document.getElementById('tabla-tiempos');
+                let html = `
+                    <table class="table-data">
+                        <thead>
+                            <tr><th>POS</th><th>DRIVER</th><th>TEAM</th><th>STATUS</th></tr>
+                        </thead>
+                        <tbody>`;
+                
+                pilotos.forEach((p, index) => {
+                    html += `
+                        <tr>
+                            <td>${index + 1}</td>
+                            <td><strong>${p.driver_number}</strong> ${p.full_name}</td>
+                            <td>${p.team_name}</td>
+                            <td style="color: #00A8FF;">TRACK</td>
+                        </tr>`;
+                });
+                
+                html += `</tbody></table>`;
+                contenedor.innerHTML = html;
+            } catch (error) {
+                document.getElementById('tabla-tiempos').innerHTML = 'Error al cargar los datos: ' + error.message;
+            }
         }
-    }
-    cargarDatos();
-</script>
-
+        cargarDatos();
+    </script>
 </body>
 </html>
