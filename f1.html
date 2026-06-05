@@ -7,17 +7,15 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { background-color: #050505; color: #fff; font-family: 'Segoe UI', sans-serif; height: 100vh; display: flex; flex-direction: column; }
 
-        /* Header del Dashboard */
         header { background: #00A8FF; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; }
         header h1 { font-size: 1.2rem; letter-spacing: 2px; }
         
-        /* Contenedor Grid (Ancho completo) */
         .dashboard-container { display: grid; grid-template-columns: 1fr 350px; gap: 10px; padding: 10px; flex: 1; overflow: hidden; }
 
-        /* Tabla de tiempos */
-        .timing-table { background: #111; border-radius: 5px; overflow-y: auto; }
+        .timing-table { background: #111; border-radius: 5px; padding: 20px; overflow-y: auto; }
+        .timing-table h3 { color: #00A8FF; margin-bottom: 15px; }
+        .driver-row { padding: 8px; border-bottom: 1px solid #222; font-size: 0.9rem; }
         
-        /* Panel Lateral (FIA/Radio) */
         .side-panel { display: flex; flex-direction: column; gap: 10px; }
         .panel { background: #111; border-radius: 5px; padding: 15px; flex: 1; border-top: 4px solid #00A8FF; }
         h3 { font-size: 0.9rem; color: #888; margin-bottom: 10px; text-transform: uppercase; }
@@ -31,15 +29,14 @@
     </header>
 
     <main class="dashboard-container">
-        <section class="timing-table">
-            <!-- Aquí irán los tiempos que integraremos más adelante -->
-            <p style="padding: 20px;">Tabla de tiempos cargando...</p>
+        <section class="timing-table" id="tabla-tiempos">
+            <h3>Cargando pilotos reales...</h3>
         </section>
 
         <section class="side-panel">
             <div class="panel">
                 <h3>Race Control</h3>
-                <p style="font-size: 0.8rem;">Esperando mensajes de la FIA...</p>
+                <p style="font-size: 0.8rem;">Esperando mensajes...</p>
             </div>
             <div class="panel">
                 <h3>Team Radio</h3>
@@ -48,21 +45,27 @@
         </section>
     </main>
 
-<script>
-    async function obtenerPilotos() {
-        const respuesta = await fetch('https://api.openf1.org/v1/drivers?session_key=9158'); // ID de sesión de ejemplo
-        const pilotos = await respuesta.json();
-        
-        const tabla = document.querySelector('.timing-table');
-        tabla.innerHTML = '<h3>Lista de Pilotos (Test)</h3>';
-        
-        pilotos.forEach(p => {
-            tabla.innerHTML += `<p>${p.driver_number} - ${p.full_name}</p>`;
-        });
-    }
-    
-    obtenerPilotos();
-</script>
-
+    <script>
+        async function cargarDatos() {
+            try {
+                // Usamos la API de OpenF1 para obtener pilotos de una sesión reciente
+                const response = await fetch('https://api.openf1.org/v1/drivers?session_key=9158');
+                const pilotos = await response.json();
+                
+                const tabla = document.getElementById('tabla-tiempos');
+                tabla.innerHTML = '<h3>Pilotos en Pista</h3>';
+                
+                pilotos.forEach(p => {
+                    tabla.innerHTML += `
+                        <div class="driver-row">
+                            <strong>${p.driver_number}</strong> - ${p.full_name} (${p.team_name})
+                        </div>`;
+                });
+            } catch (error) {
+                document.getElementById('tabla-tiempos').innerHTML = 'Error al cargar datos.';
+            }
+        }
+        cargarDatos();
+    </script>
 </body>
 </html>
