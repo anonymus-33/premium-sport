@@ -49,7 +49,7 @@
         async function cargarDatos() {
             try {
                 // LLAMADA INTERNA AL SERVIDOR DE VERCEL (No proxy externo)
-                const response = await fetch('/api/f1');
+                const response = await fetch('/api');
                 if (!response.ok) throw new Error('Error al conectar');
                 
                 const pilotos = await response.json();
