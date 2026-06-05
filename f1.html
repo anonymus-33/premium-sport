@@ -45,29 +45,32 @@
         </section>
     </main>
 
-    <script>
-        async function cargarDatos() {
-            try {
-                // LLAMADA INTERNA AL SERVIDOR DE VERCEL (No proxy externo)
-                const response = await fetch('/api');
-                if (!response.ok) throw new Error('Error al conectar');
-                
-                const pilotos = await response.json();
-                const tabla = document.getElementById('tabla-tiempos');
-                tabla.innerHTML = '<h3>Pilotos en Pista</h3>';
-                
-                pilotos.forEach(p => {
-                    tabla.innerHTML += `
-                        <div class="driver-row">
-                            <strong>${p.driver_number}</strong> - ${p.full_name} (${p.team_name})
-                        </div>`;
-                });
-            } catch (error) {
-                document.getElementById('tabla-tiempos').innerHTML = 'Error en el servidor.';
-                console.error(error);
-            }
+ <script>
+    async function cargarDatos() {
+        try {
+            // Usamos un proxy que permite el acceso a la API de F1
+            const url = 'https://api.allorigins.win/get?url=' + encodeURIComponent('https://api.openf1.org/v1/drivers?session_key=9158');
+            const response = await fetch(url);
+            const data = await response.json();
+            
+            // Los datos vienen dentro de "contents"
+            const pilotos = JSON.parse(data.contents);
+            
+            const tabla = document.getElementById('tabla-tiempos');
+            tabla.innerHTML = '<h3>Pilotos en Pista</h3>';
+            
+            pilotos.forEach(p => {
+                tabla.innerHTML += `
+                    <div class="driver-row">
+                        <strong>${p.driver_number}</strong> - ${p.full_name} (${p.team_name})
+                    </div>`;
+            });
+        } catch (error) {
+            document.getElementById('tabla-tiempos').innerHTML = 'Error de conexión: ' + error.message;
         }
-        cargarDatos();
-    </script>
+    }
+    cargarDatos();
+</script>
+
 </body>
 </html>
