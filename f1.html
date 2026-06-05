@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Premium Sport | F1 Live Timing</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background-color: #050505; color: #fff; font-family: 'Segoe UI', sans-serif; height: 100vh; display: flex; flex-direction: column; }
+
+        /* Header del Dashboard */
+        header { background: #00A8FF; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; }
+        header h1 { font-size: 1.2rem; letter-spacing: 2px; }
+        
+        /* Contenedor Grid (Ancho completo) */
+        .dashboard-container { display: grid; grid-template-columns: 1fr 350px; gap: 10px; padding: 10px; flex: 1; overflow: hidden; }
+
+        /* Tabla de tiempos */
+        .timing-table { background: #111; border-radius: 5px; overflow-y: auto; }
+        
+        /* Panel Lateral (FIA/Radio) */
+        .side-panel { display: flex; flex-direction: column; gap: 10px; }
+        .panel { background: #111; border-radius: 5px; padding: 15px; flex: 1; border-top: 4px solid #00A8FF; }
+        h3 { font-size: 0.9rem; color: #888; margin-bottom: 10px; text-transform: uppercase; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>PREMIUM SPORT | F1 LIVE TIMING</h1>
+        <div id="clock">00:00:00</div>
+    </header>
+
+    <main class="dashboard-container">
+        <section class="timing-table">
+            <!-- Aquí irán los tiempos que integraremos más adelante -->
+            <p style="padding: 20px;">Tabla de tiempos cargando...</p>
+        </section>
+
+        <section class="side-panel">
+            <div class="panel">
+                <h3>Race Control</h3>
+                <p style="font-size: 0.8rem;">Esperando mensajes de la FIA...</p>
+            </div>
+            <div class="panel">
+                <h3>Team Radio</h3>
+                <p style="font-size: 0.8rem;">Esperando transmisiones...</p>
+            </div>
+        </section>
+    </main>
+
+</body>
+</html>
