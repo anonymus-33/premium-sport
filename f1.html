@@ -50,34 +50,30 @@
 <script>
     async function cargarDatos() {
         const contenedor = document.getElementById('tabla-tiempos');
-        
         try {
-            // 1. Obtener la sesión más reciente
+            // 1. Obtener sesión
             const res = await fetch('https://api.allorigins.win/get?url=' + encodeURIComponent('https://api.openf1.org/v1/sessions?session_name=Race'));
             const data = await res.json();
             const sesiones = JSON.parse(data.contents);
             const sesionKey = sesiones[sesiones.length - 1].session_key;
 
-            // 2. Obtener los pilotos usando esa sesión
+            // 2. Obtener pilotos
             const resPilotos = await fetch('https://api.allorigins.win/get?url=' + encodeURIComponent('https://api.openf1.org/v1/drivers?session_key=' + sesionKey));
             const dataPilotos = await resPilotos.json();
             const pilotos = JSON.parse(dataPilotos.contents);
 
+            // --- AQUÍ ESTÁ EL CAMBIO PARA DEPURAR ---
+            console.log("Tipo de 'pilotos':", typeof pilotos);
+            console.log("Contenido de 'pilotos':", pilotos);
+
             // 3. Renderizado seguro
             if (Array.isArray(pilotos)) {
-                contenedor.innerHTML = '<table class="table-data"><thead><tr><th>POS</th><th>DRIVER</th><th>TEAM</th></tr></thead><tbody id="body-tabla"></tbody></table>';
-                const body = document.getElementById('body-tabla');
-                
-                pilotos.forEach((p, i) => {
-                    body.innerHTML += `<tr><td>${i+1}</td><td>${p.full_name}</td><td>${p.team_name}</td></tr>`;
-                });
+                // ... (tu código de tabla)
             } else {
-                console.error("Los datos no son un array:", pilotos);
-                contenedor.innerHTML = "Error: La API no devolvió una lista válida.";
+                contenedor.innerHTML = "Error: La API devolvió un tipo inesperado. Mira la consola (F12).";
             }
         } catch (err) {
-            console.error(err);
-            contenedor.innerHTML = "Error de conexión: " + err.message;
+            contenedor.innerHTML = "Error: " + err.message;
         }
     }
     cargarDatos();
