@@ -48,22 +48,32 @@
     </main>
 
 <script>
-        async function cargarDatos() {
-            try {
-                // Usamos un proxy diferente y más estable
-                const url = 'https://api.allorigins.win/get?url=' + encodeURIComponent('https://api.openf1.org/v1/drivers?session_key=9158');
-                const response = await fetch(url);
-                const data = await response.json();
-                
-                // Convertimos el contenido string a objeto JSON
-                const pilotos = JSON.parse(data.contents);
-                
-                // Comprobamos si realmente es un array antes de hacer el forEach
-                if (!Array.isArray(pilotos)) {
-                    throw new Error("La API no devolvió una lista de pilotos. Respuesta: " + JSON.stringify(pilotos));
-                }
-                
-                const contenedor = document.getElementById('tabla-tiempos');
+    async function iniciarDashboard() {
+        const contenedor = document.getElementById('tabla-tiempos');
+        
+        try {
+            contenedor.innerHTML = '<h3>Buscando sesión activa...</h3>';
+
+            // 1. Obtener la sesión más reciente (buscamos la última carrera)
+            const urlSesion = 'https://api.allorigins.win/get?url=' + encodeURIComponent('https://api.openf1.org/v1/sessions?session_name=Race');
+            const respSesion = await fetch(urlSesion);
+            const dataSesion = await respSesion.json();
+            const sesiones = JSON.parse(dataSesion.contents);
+            
+            if (!sesiones || sesiones.length === 0) throw new Error("No se encontraron sesiones de carrera");
+
+            // Seleccionamos la última sesión disponible en la lista
+            const sesionActual = sesiones[sesiones.length - 1].session_key;
+            console.log("Sesión activa detectada:", sesionActual);
+
+            // 2. Usar esa clave dinámicamente para los pilotos
+            const urlPilotos = 'https://api.allorigins.win/get?url=' + encodeURIComponent('https://api.openf1.org/v1/drivers?session_key=' + sesionActual);
+            const respPilotos = await fetch(urlPilotos);
+            const dataPilotos = await respPilotos.json();
+            const pilotos = JSON.parse(dataPilotos.contents);
+            
+            // 3. Renderizar la tabla con los datos obtenidos
+            if (Array.isArray(pilotos)) {
                 let html = `
                     <table class="table-data">
                         <thead><tr><th>POS</th><th>DRIVER</th><th>TEAM</th></tr></thead>
@@ -77,14 +87,21 @@
                     </tr>`;
                 });
                 
-                html += `</tbody></table>`;
+                html += '</tbody></table>';
                 contenedor.innerHTML = html;
-            } catch (error) {
-                console.error(error);
-                document.getElementById('tabla-tiempos').innerHTML = 'Error: ' + error.message;
+            } else {
+                throw new Error("No se pudieron obtener datos de pilotos con la sesión " + sesionActual);
             }
+            
+        } catch (error) {
+            console.error(error);
+            contenedor.innerHTML = '<h3>Error al cargar dashboard:</h3><p>' + error.message + '</p>';
         }
-        cargarDatos();
-    </script>
+    }
+
+    // Iniciar el proceso
+    iniciarDashboard();
+</script>
+
 </body>
 </html>
