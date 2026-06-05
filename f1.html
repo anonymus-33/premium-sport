@@ -3,25 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <title>Premium Sport | F1 Live Timing</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background-color: #050505; color: #fff; font-family: 'Segoe UI', sans-serif; height: 100vh; display: flex; flex-direction: column; }
-
-        header { background: #00A8FF; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; }
-        header h1 { font-size: 1.2rem; letter-spacing: 2px; }
-        
-        .dashboard-container { display: grid; grid-template-columns: 1fr 350px; gap: 10px; padding: 10px; flex: 1; overflow: hidden; }
-
-        /* Estilos profesionales de la tabla */
-        .timing-table { background: #0b0e14; border-radius: 5px; padding: 20px; overflow-y: auto; }
-        .table-data { width: 100%; border-collapse: collapse; color: #fff; }
-        .table-data th { text-align: left; padding: 12px; color: #888; font-size: 0.75rem; text-transform: uppercase; border-bottom: 2px solid #222; }
-        .table-data td { padding: 12px; border-bottom: 1px solid #222; font-size: 0.9rem; }
-        
-        .side-panel { display: flex; flex-direction: column; gap: 10px; }
-        .panel { background: #111; border-radius: 5px; padding: 15px; flex: 1; border-top: 4px solid #00A8FF; }
-        h3 { font-size: 0.9rem; color: #888; margin-bottom: 10px; text-transform: uppercase; }
-    </style>
+<style>
+    body { background-color: #0b0e14; color: #fff; font-family: 'Segoe UI', sans-serif; }
+    .table-data { width: 100%; border-collapse: collapse; }
+    .table-data th { text-align: left; padding: 10px; color: #888; font-size: 0.7rem; border-bottom: 2px solid #222; }
+    .table-data td { padding: 10px; border-bottom: 1px solid #222; font-size: 0.9rem; }
+    .team-logo { width: 25px; height: auto; margin-right: 10px; vertical-align: middle; }
+    .driver-name { font-weight: bold; }
+    .pit-badge { background: #1c3d5a; color: #fff; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; }
+</style>
 </head>
 <body>
 
@@ -48,33 +38,38 @@
     </main>
 
 <script>
+    // Mapeo básico para logos de equipos
+    const teamLogos = {
+        "Red Bull Racing": "https://upload.wikimedia.org/wikipedia/en/2/29/Red_Bull_Racing_logo.svg",
+        "Ferrari": "https://upload.wikimedia.org/wikipedia/en/c/c0/Scuderia_Ferrari_logo.svg",
+        "Mercedes": "https://upload.wikimedia.org/wikipedia/en/f/f4/Mercedes-Benz_Grand_Prix_logo.svg",
+        "McLaren": "https://upload.wikimedia.org/wikipedia/en/6/66/McLaren_Racing_logo.svg",
+        "Aston Martin": "https://upload.wikimedia.org/wikipedia/en/5/5a/Aston_Martin_Aramco_Cognizant_F1_logo.svg"
+    };
+
     async function cargarDatos() {
         const contenedor = document.getElementById('tabla-tiempos');
         try {
-            // 1. Obtener sesión
-            const res = await fetch('https://api.allorigins.win/get?url=' + encodeURIComponent('https://api.openf1.org/v1/sessions?session_name=Race'));
-            const data = await res.json();
-            const sesiones = JSON.parse(data.contents);
-            const sesionKey = sesiones[sesiones.length - 1].session_key;
-
-            // 2. Obtener pilotos
-            const resPilotos = await fetch('https://api.allorigins.win/get?url=' + encodeURIComponent('https://api.openf1.org/v1/drivers?session_key=' + sesionKey));
-            const dataPilotos = await resPilotos.json();
-            const pilotos = JSON.parse(dataPilotos.contents);
-
-            // --- AQUÍ ESTÁ EL CAMBIO PARA DEPURAR ---
-            console.log("Tipo de 'pilotos':", typeof pilotos);
-            console.log("Contenido de 'pilotos':", pilotos);
-
-            // 3. Renderizado seguro
-            if (Array.isArray(pilotos)) {
-                // ... (tu código de tabla)
-            } else {
-                contenedor.innerHTML = "Error: La API devolvió un tipo inesperado. Mira la consola (F12).";
-            }
-        } catch (err) {
-            contenedor.innerHTML = "Error: " + err.message;
-        }
+            // ... (código de fetch anterior) ...
+            // Asumiendo que 'pilotos' ya tiene la lista
+            
+            let html = `<table class="table-data">
+                <thead><tr><th>POS</th><th>DRIVER</th><th>TEAM</th><th>LAPS</th><th>PIT</th></tr></thead><tbody>`;
+            
+            pilotos.forEach((p, i) => {
+                const logo = teamLogos[p.team_name] || "";
+                html += `<tr>
+                    <td>${i+1}</td>
+                    <td><span class="driver-name">${p.full_name}</span></td>
+                    <td><img src="${logo}" class="team-logo"> ${p.team_name}</td>
+                    <td>36</td>
+                    <td><span class="pit-badge">IN PIT</span></td>
+                </tr>`;
+            });
+            
+            html += `</tbody></table>`;
+            contenedor.innerHTML = html;
+        } catch (err) { contenedor.innerHTML = "Error cargando datos"; }
     }
     cargarDatos();
 </script>
