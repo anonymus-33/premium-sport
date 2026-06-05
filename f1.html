@@ -48,45 +48,39 @@
     </main>
 
 <script>
-    async function iniciarDashboard() {
+    async function cargarDatos() {
         const contenedor = document.getElementById('tabla-tiempos');
+        
         try {
-            contenedor.innerHTML = '<h3>Depurando datos...</h3>';
+            // 1. Obtener la sesión más reciente
+            const res = await fetch('https://api.allorigins.win/get?url=' + encodeURIComponent('https://api.openf1.org/v1/sessions?session_name=Race'));
+            const data = await res.json();
+            const sesiones = JSON.parse(data.contents);
+            const sesionKey = sesiones[sesiones.length - 1].session_key;
 
-            const urlSesion = 'https://api.allorigins.win/get?url=' + encodeURIComponent('https://api.openf1.org/v1/sessions?session_name=Race');
-            const respSesion = await fetch(urlSesion);
-            const dataSesion = await respSesion.json();
-            
-            // PRIMERA PRUEBA: Vamos a ver qué es realmente "dataSesion"
-            console.log("Respuesta cruda del proxy:", dataSesion);
-            
-            const sesiones = JSON.parse(dataSesion.contents);
-            console.log("Sesiones parseadas:", sesiones);
-
-            if (!sesiones || sesiones.length === 0) throw new Error("No hay sesiones de carrera");
-
-            const sesionActual = sesiones[sesiones.length - 1].session_key;
-            
-            // SEGUNDA PRUEBA: Verificar qué traen los pilotos
-            const urlPilotos = 'https://api.allorigins.win/get?url=' + encodeURIComponent('https://api.openf1.org/v1/drivers?session_key=' + sesionActual);
-            const respPilotos = await fetch(urlPilotos);
-            const dataPilotos = await respPilotos.json();
+            // 2. Obtener los pilotos usando esa sesión
+            const resPilotos = await fetch('https://api.allorigins.win/get?url=' + encodeURIComponent('https://api.openf1.org/v1/drivers?session_key=' + sesionKey));
+            const dataPilotos = await resPilotos.json();
             const pilotos = JSON.parse(dataPilotos.contents);
-            
-            console.log("Datos de pilotos:", pilotos); // <--- ESTO ES LA CLAVE
 
+            // 3. Renderizado seguro
             if (Array.isArray(pilotos)) {
-                // Aquí iría tu renderizado
-                contenedor.innerHTML = '¡Datos recibidos correctamente! (Revisa la consola para ver los objetos)';
+                contenedor.innerHTML = '<table class="table-data"><thead><tr><th>POS</th><th>DRIVER</th><th>TEAM</th></tr></thead><tbody id="body-tabla"></tbody></table>';
+                const body = document.getElementById('body-tabla');
+                
+                pilotos.forEach((p, i) => {
+                    body.innerHTML += `<tr><td>${i+1}</td><td>${p.full_name}</td><td>${p.team_name}</td></tr>`;
+                });
             } else {
-                contenedor.innerHTML = '<h3>Error: pilotos no es un array.</h3><p>Mira la consola (F12) para ver el error exacto.</p>';
+                console.error("Los datos no son un array:", pilotos);
+                contenedor.innerHTML = "Error: La API no devolvió una lista válida.";
             }
-            
-        } catch (error) {
-            contenedor.innerHTML = '<h3>Error crítico:</h3><p>' + error.message + '</p>';
+        } catch (err) {
+            console.error(err);
+            contenedor.innerHTML = "Error de conexión: " + err.message;
         }
     }
-    iniciarDashboard();
+    cargarDatos();
 </script>
 
 </body>
