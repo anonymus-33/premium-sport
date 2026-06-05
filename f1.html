@@ -50,56 +50,42 @@
 <script>
     async function iniciarDashboard() {
         const contenedor = document.getElementById('tabla-tiempos');
-        
         try {
-            contenedor.innerHTML = '<h3>Buscando sesión activa...</h3>';
+            contenedor.innerHTML = '<h3>Depurando datos...</h3>';
 
-            // 1. Obtener la sesión más reciente (buscamos la última carrera)
             const urlSesion = 'https://api.allorigins.win/get?url=' + encodeURIComponent('https://api.openf1.org/v1/sessions?session_name=Race');
             const respSesion = await fetch(urlSesion);
             const dataSesion = await respSesion.json();
-            const sesiones = JSON.parse(dataSesion.contents);
             
-            if (!sesiones || sesiones.length === 0) throw new Error("No se encontraron sesiones de carrera");
+            // PRIMERA PRUEBA: Vamos a ver qué es realmente "dataSesion"
+            console.log("Respuesta cruda del proxy:", dataSesion);
+            
+            const sesiones = JSON.parse(dataSesion.contents);
+            console.log("Sesiones parseadas:", sesiones);
 
-            // Seleccionamos la última sesión disponible en la lista
+            if (!sesiones || sesiones.length === 0) throw new Error("No hay sesiones de carrera");
+
             const sesionActual = sesiones[sesiones.length - 1].session_key;
-            console.log("Sesión activa detectada:", sesionActual);
-
-            // 2. Usar esa clave dinámicamente para los pilotos
+            
+            // SEGUNDA PRUEBA: Verificar qué traen los pilotos
             const urlPilotos = 'https://api.allorigins.win/get?url=' + encodeURIComponent('https://api.openf1.org/v1/drivers?session_key=' + sesionActual);
             const respPilotos = await fetch(urlPilotos);
             const dataPilotos = await respPilotos.json();
             const pilotos = JSON.parse(dataPilotos.contents);
             
-            // 3. Renderizar la tabla con los datos obtenidos
+            console.log("Datos de pilotos:", pilotos); // <--- ESTO ES LA CLAVE
+
             if (Array.isArray(pilotos)) {
-                let html = `
-                    <table class="table-data">
-                        <thead><tr><th>POS</th><th>DRIVER</th><th>TEAM</th></tr></thead>
-                        <tbody>`;
-                
-                pilotos.forEach((p, index) => {
-                    html += `<tr>
-                        <td>${index + 1}</td>
-                        <td><strong>${p.driver_number}</strong> ${p.full_name}</td>
-                        <td>${p.team_name}</td>
-                    </tr>`;
-                });
-                
-                html += '</tbody></table>';
-                contenedor.innerHTML = html;
+                // Aquí iría tu renderizado
+                contenedor.innerHTML = '¡Datos recibidos correctamente! (Revisa la consola para ver los objetos)';
             } else {
-                throw new Error("No se pudieron obtener datos de pilotos con la sesión " + sesionActual);
+                contenedor.innerHTML = '<h3>Error: pilotos no es un array.</h3><p>Mira la consola (F12) para ver el error exacto.</p>';
             }
             
         } catch (error) {
-            console.error(error);
-            contenedor.innerHTML = '<h3>Error al cargar dashboard:</h3><p>' + error.message + '</p>';
+            contenedor.innerHTML = '<h3>Error crítico:</h3><p>' + error.message + '</p>';
         }
     }
-
-    // Iniciar el proceso
     iniciarDashboard();
 </script>
 
